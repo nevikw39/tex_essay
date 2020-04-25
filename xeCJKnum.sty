@@ -1,0 +1,297 @@
+\ProvidesPackage{xeCJKnum}[]
+
+\endlinechar \m@ne
+
+\def\xeCJKnullspace{0pt}
+\def\xeCJK@null{\kern\xeCJKnullspace ０\kern\xeCJKnullspace}
+\def\xeCJK@zero{零}
+\def\xeCJK@tenthousand{萬}
+\def\xeCJK@hundredmillion{億}
+\def\xeCJK@minus{負}
+
+\newif\ifxeCJK@zero@
+\newif\ifxeCJK@previous@
+\newif\ifxeCJK@null@
+
+\newcount\xeCJK@q
+\newcount\xeCJK@r
+
+\def\xeCJK@digit#1{
+  \ifcase #1\relax
+    \ifxeCJK@null@ \xeCJK@null \else \xeCJK@zero \fi \or
+    一 \or
+    二 \or
+    三 \or
+    四 \or
+    五 \or
+    六 \or
+    七 \or
+    八 \or
+    九
+  \fi}
+  
+\def\xeCJK_cap@digit#1{
+  \ifcase #1\relax
+    \ifxeCJK@null@ \xeCJK@null \else \xeCJK@zero \fi \or
+    壹 \or
+    貳 \or
+    叁 \or
+    肆 \or
+    伍 \or
+    陸 \or
+    柒 \or
+    捌 \or
+    玖
+  \fi
+}
+  
+\def\xeCJK@splitnumber#1{
+  \xeCJK@q #1
+  \xeCJK@r #1
+  \divide\xeCJK@q \@M
+  \begingroup
+    \multiply\xeCJK@q \@M
+    \advance\xeCJK@r -\xeCJK@q
+    \ifnum\xeCJK@r = \z@
+      \xdef\xeCJK@low{}
+    \else
+      \xdef\xeCJK@low{\number\xeCJK@r}
+    \fi
+  \endgroup
+  \ifnum\xeCJK@q > \z@
+    \xeCJK@r \xeCJK@q
+    \divide\xeCJK@q \@M
+    \begingroup
+      \multiply\xeCJK@q \@M
+      \advance\xeCJK@r -\xeCJK@q
+      \ifnum\xeCJK@r = \z@
+        \xdef\xeCJK@high{}
+      \else
+        \xdef\xeCJK@high{\number\xeCJK@r}
+      \fi
+    \endgroup
+    \ifnum\xeCJK@q > \z@
+      \xdef\xeCJK@yi{\number\xeCJK@q}
+    \else
+      \xdef\xeCJK@yi{}
+    \fi
+  \else
+    \xdef\xeCJK@high{}
+    \xdef\xeCJK@yi{}
+  \fi
+}
+
+\def\xeCJK@processnumber#1{
+  \xeCJK@zero@false
+  \xeCJK@q #1
+  \xeCJK@r #1
+  \divide\xeCJK@q \@m
+  \ifnum\xeCJK@q = \z@
+    \ifxeCJK@previous@
+      \xeCJK@zero@true
+    \fi
+  \else
+    \ifxeCJK@zero@
+      \xeCJK@zero
+    \fi
+    \xeCJK@digit{\xeCJK@q}
+    千
+    \xeCJK@previous@true
+    \xeCJK@zero@false
+  \fi
+  \multiply\xeCJK@q \@m
+  \advance\xeCJK@r -\xeCJK@q
+  \xeCJK@q \xeCJK@r
+  \divide\xeCJK@q 100\relax
+  \ifnum\xeCJK@q = \z@
+    \ifxeCJK@previous@
+      \xeCJK@zero@true
+    \fi
+  \else
+    \ifxeCJK@zero@
+      \xeCJK@zero
+    \fi
+    \xeCJK@digit{\xeCJK@q}
+    百
+    \xeCJK@previous@true
+    \xeCJK@zero@false
+  \fi
+  \multiply\xeCJK@q 100
+  \advance\xeCJK@r -\xeCJK@q
+  \xeCJK@q \xeCJK@r
+  \divide \xeCJK@q 10\relax
+  \ifnum\xeCJK@q = \z@
+    \ifxeCJK@previous@
+      \xeCJK@zero@true
+    \fi
+  \else
+    \ifxeCJK@zero@
+      \xeCJK@zero
+    \fi
+    \ifnum\xeCJK@q = \@ne
+      \ifxeCJK@previous@
+        \xeCJK@one
+      \fi
+    \else
+      \xeCJK@digit{\xeCJK@q}
+    \fi
+    十
+    \xeCJK@previous@true
+    \xeCJK@zero@false
+  \fi
+  \multiply\xeCJK@q 10
+  \advance\xeCJK@r -\xeCJK@q
+  \ifnum\xeCJK@r = \z@
+  \else
+    \ifxeCJK@zero@
+      \xeCJK@zero
+    \fi
+    \xeCJK@digit{\xeCJK@r}
+    \xeCJK@previous@true
+  \fi
+}
+\def\xeCJKcap@processnumber#1{
+  \xeCJK@zero@false
+  \xeCJK@q #1
+  \xeCJK@r #1
+  \divide\xeCJK@q \@m
+  \ifnum\xeCJK@q = \z@
+    \ifxeCJK@previous@
+      \xeCJK@zero@true
+    \fi
+  \else
+    \ifxeCJK@zero@
+      \xeCJK@zero
+    \fi
+    \xeCJK_cap@digit{\xeCJK@q}
+    仟
+    \xeCJK@previous@true
+    \xeCJK@zero@false
+  \fi
+  \multiply\xeCJK@q \@m
+  \advance\xeCJK@r -\xeCJK@q
+  \xeCJK@q \xeCJK@r
+  \divide\xeCJK@q 100\relax
+  \ifnum\xeCJK@q = \z@
+    \ifxeCJK@previous@
+      \xeCJK@zero@true
+    \fi
+  \else
+    \ifxeCJK@zero@
+      \xeCJK@zero
+    \fi
+    \xeCJK_cap@digit{\xeCJK@q}
+    佰
+    \xeCJK@previous@true
+    \xeCJK@zero@false
+  \fi
+  \multiply\xeCJK@q 100
+  \advance\xeCJK@r -\xeCJK@q
+  \xeCJK@q \xeCJK@r
+  \divide \xeCJK@q 10\relax
+  \ifnum\xeCJK@q = \z@
+    \ifxeCJK@previous@
+      \xeCJK@zero@true
+    \fi
+  \else
+    \ifxeCJK@zero@
+      \xeCJK@zero
+    \fi
+    \ifnum\xeCJK@q = \@ne
+      \ifxeCJK@previous@
+        \xeCJK@one
+      \fi
+    \else
+      \xeCJK_cap@digit{\xeCJK@q}
+    \fi
+    拾
+    \xeCJK@previous@true
+    \xeCJK@zero@false
+  \fi
+  \multiply\xeCJK@q 10
+  \advance\xeCJK@r -\xeCJK@q
+  \ifnum\xeCJK@r = \z@
+  \else
+    \ifxeCJK@zero@
+      \xeCJK@zero
+    \fi
+    \xeCJK_cap@digit{\xeCJK@r}
+    \xeCJK@previous@true
+  \fi
+}
+
+\DeclareRobustCommand\xeCJKnumber[1]{
+  \xeCJK@null@false
+  \xeCJK@q #1\relax
+  \ifnum\xeCJK@q < \z@
+    \multiply\xeCJK@q \m@ne
+    \xeCJK@minus
+    \xeCJKkern
+  \fi
+  \xeCJK@previous@false
+  \xeCJK@zero@false
+  \ifnum\xeCJK@q = \z@
+    \xeCJK@zero
+  \else
+    \xeCJK@splitnumber{\xeCJK@q}
+    \ifx\xeCJK@yi \@empty
+    \else
+      \xeCJK@processnumber{\xeCJK@yi}
+      \xeCJK@hundredmillion
+    \fi
+    \ifx\xeCJK@high \@empty
+    \else
+      \xeCJK@processnumber{\xeCJK@high}
+      \xeCJK@tenthousand
+    \fi
+    \ifx\xeCJK@low \@empty
+    \else
+      \ifx\xeCJK@yi \@empty
+      \else
+        \ifx\xeCJK@high \@empty
+          \xeCJK@zero
+        \fi
+      \fi
+      \xeCJK@processnumber{\xeCJK@low}
+    \fi
+  \fi
+}
+\DeclareRobustCommand\xeCJKcapnumber[1]{
+  \xeCJK@null@false
+  \xeCJK@q #1\relax
+  \ifnum\xeCJK@q < \z@
+    \multiply\xeCJK@q \m@ne
+    \xeCJK@minus
+    \xeCJKkern
+  \fi
+  \xeCJK@previous@false
+  \xeCJK@zero@false
+  \ifnum\xeCJK@q = \z@
+    \xeCJK@zero
+  \else
+    \xeCJK@splitnumber{\xeCJK@q}
+    \ifx\xeCJK@yi \@empty
+    \else
+      \xeCJKcap@processnumber{\xeCJK@yi}
+      \xeCJK@hundredmillion
+    \fi
+    \ifx\xeCJK@high \@empty
+    \else
+      \xeCJKcap@processnumber{\xeCJK@high}
+      \xeCJK@tenthousand
+    \fi
+    \ifx\xeCJK@low \@empty
+    \else
+      \ifx\xeCJK@yi \@empty
+      \else
+        \ifx\xeCJK@high \@empty
+          \xeCJK@zero
+        \fi
+      \fi
+      \xeCJKcap@processnumber{\xeCJK@low}
+    \fi
+  \fi
+}
+
+\endlinechar `\^^M
+\endinput
